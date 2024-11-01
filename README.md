@@ -1,3 +1,26 @@
+# Added by Enrique
+
+Hi!
+
+I completed everything, including the stretch goals.
+
+I also included a video in at `docs/hugo_insurance-application_form.mov`
+
+
+To test:
+
+
+```sh
+# optionally: brew install nvm && nvm use
+npm i
+npm start
+```
+
+Thanks for your consideration! 🙂
+- Enrique
+
+
+
 # This Repository
 
 This is a skeleton repository that you can use to complete the take home challenge. It provides some
