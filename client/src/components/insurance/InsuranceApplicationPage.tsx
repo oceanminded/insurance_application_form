@@ -146,7 +146,11 @@ export const InsuranceApplicationPage = () => {
             data.vehicles.forEach((vehicle, index) => {
                 errors.vehicles[index] = {
                     vin: !vehicle.vin ? 'VIN is required' : '',
-                    year: !vehicle.year ? 'Year is required' : '',
+                    year: !vehicle.year
+                        ? 'Year is required'
+                        : vehicle.year < 1985 || vehicle.year > new Date().getFullYear() + 1
+                          ? 'Vehicle year must be between 1985 and next year'
+                          : '',
                     make: !vehicle.make ? 'Make is required' : '',
                     model: !vehicle.model ? 'Model is required' : '',
                 };

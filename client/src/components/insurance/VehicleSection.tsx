@@ -45,6 +45,12 @@ export const VehicleSection = ({ control, errors, vehicleArray }: VehicleSection
                                         type="number"
                                         label="Year"
                                         fullWidth
+                                        onChange={(e) => {
+                                            const value = e.target.value
+                                                ? Number(e.target.value)
+                                                : null;
+                                            field.onChange(value);
+                                        }}
                                         error={!!errors.vehicles?.[index]?.year}
                                         helperText={errors.vehicles?.[index]?.year || ''}
                                     />
@@ -103,7 +109,7 @@ export const VehicleSection = ({ control, errors, vehicleArray }: VehicleSection
                 onClick={() =>
                     append({
                         vin: '',
-                        year: new Date().getFullYear(),
+                        year: Number(new Date().getFullYear()),
                         make: '',
                         model: '',
                     })
