@@ -15,6 +15,7 @@ To test:
 npm i
 npm start
 ```
+Then visit http://localhost:5173/applications
 
 Thanks for your consideration! 🙂
 - Enrique
