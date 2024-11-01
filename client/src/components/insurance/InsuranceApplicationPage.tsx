@@ -28,6 +28,7 @@ import {
     useUpdateApplicationMutation,
     useGetQuoteMutation,
 } from '../../services/apiSlice';
+import { ApplicationValidator } from './validators/ApplicationValidator';
 
 export const InsuranceApplicationPage = () => {
     const navigate = useNavigate();
@@ -99,96 +100,9 @@ export const InsuranceApplicationPage = () => {
     }, [application, reset]);
 
     const validateForm = (data: ApplicationFormData) => {
-        const errors: Record<string, any> = {
-            address: {},
-            vehicles: [],
-            people: [],
-        };
-
-        // Helper function to check age
-        const validateAge = (birthDate: Date | null): string | null => {
-            if (!birthDate) return 'Date of birth is required';
-            const today = new Date();
-            const birth = new Date(birthDate);
-            let calculatedAge = today.getFullYear() - birth.getFullYear();
-            const monthDiff = today.getMonth() - birth.getMonth();
-
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-                calculatedAge--;
-            }
-
-            return calculatedAge < 16 ? 'Must be at least 16 years old' : null;
-        };
-
-        // Personal Info Validation
-        if (!data.firstName) errors.firstName = 'First name is required';
-        if (!data.lastName) errors.lastName = 'Last name is required';
-        if (!data.dateOfBirth) {
-            errors.dateOfBirth = 'Date of birth is required';
-        } else {
-            const ageError = validateAge(data.dateOfBirth);
-            if (ageError) errors.dateOfBirth = ageError;
-        }
-
-        // Address Validation
-        if (!data.address.street) errors.address.street = 'Street address is required';
-        if (!data.address.city) errors.address.city = 'City is required';
-        if (!data.address.state) errors.address.state = 'State is required';
-        if (!data.address.zipCode) errors.address.zipCode = 'ZIP code is required';
-        else if (!/^\d{5}(-\d{4})?$/.test(data.address.zipCode)) {
-            errors.address.zipCode = 'Invalid ZIP code format';
-        }
-
-        // Vehicle Validation - only show error message in one place
-        if (!data.vehicles.length) {
-            errors.vehiclesError = 'At least one vehicle is required';
-        } else {
-            data.vehicles.forEach((vehicle, index) => {
-                errors.vehicles[index] = {
-                    vin: !vehicle.vin ? 'VIN is required' : '',
-                    year: !vehicle.year
-                        ? 'Year is required'
-                        : vehicle.year < 1985 || vehicle.year > new Date().getFullYear() + 1
-                          ? 'Vehicle year must be between 1985 and next year'
-                          : '',
-                    make: !vehicle.make ? 'Make is required' : '',
-                    model: !vehicle.model ? 'Model is required' : '',
-                };
-            });
-        }
-
-        // People Validation
-        if (data.people.length > 0) {
-            data.people.forEach((person, index) => {
-                errors.people[index] = {};
-                if (!person.firstName) errors.people[index].firstName = 'First name is required';
-                if (!person.lastName) errors.people[index].lastName = 'Last name is required';
-                if (!person.relationship)
-                    errors.people[index].relationship = 'Relationship is required';
-
-                // Add age validation for additional people
-                const ageError = validateAge(person.dateOfBirth);
-                if (ageError) errors.people[index].dateOfBirth = ageError;
-            });
-        }
-
+        const { isValid, errors } = ApplicationValidator.validate(data);
         setValidationErrors(errors);
-        return !hasErrors(errors);
-    };
-
-    // Helper to check if there are any errors
-    const hasErrors = (errors: Record<string, any>): boolean => {
-        if (typeof errors !== 'object') return false;
-        return Object.keys(errors).some((key) => {
-            const value = errors[key];
-            if (Array.isArray(value)) {
-                return value.some((item) => hasErrors(item));
-            }
-            if (typeof value === 'object') {
-                return hasErrors(value);
-            }
-            return !!value;
-        });
+        return isValid;
     };
 
     // Handle button click
