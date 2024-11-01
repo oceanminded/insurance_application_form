@@ -4,7 +4,7 @@ Hi!
 
 I completed everything, including the stretch goals.
 
-I also included a video in at `docs/hugo_insurance-application_form.mov`
+I also added a video in `docs/hugo_insurance-application_form.mov`
 
 
 To test:
