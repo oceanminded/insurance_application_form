@@ -106,16 +106,17 @@ export const InsuranceApplicationPage = () => {
     };
 
     // Handle button click
-    const handleButtonClick = async () => {
-        const formData = getValues(); // Get current form values
+    const handleButtonClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+        // Prevent any default form submission
+        e.preventDefault();
+        e.stopPropagation();
 
-        // Always validate and show feedback
-        const isValid = validateForm(formData);
+        const formData = getValues();
+        const formattedData = formatDatesInFormResponse(formData, DATE_FIELDS);
+        let applicationId = id;
 
         try {
-            const formattedData = formatDatesInFormResponse(formData, DATE_FIELDS);
-            let applicationId = id;
-
+            // Always save the form data
             if (!id) {
                 const result = await createApplication(formattedData).unwrap();
                 if (result?.application?.id) {
@@ -126,12 +127,12 @@ export const InsuranceApplicationPage = () => {
                 await updateApplication({ id, data: formattedData }).unwrap();
             }
 
-            // Only try for quote if validation passed
+            // Only proceed with quote if validation passes
+            const isValid = validateForm(formData);
             if (isValid && applicationId) {
                 try {
                     await getQuote(applicationId).unwrap();
                 } catch (quoteErr) {
-                    // Quote validation failed - that's okay, we just show the validation errors
                     console.log('Quote validation failed:', quoteErr);
                 }
             }
@@ -194,7 +195,11 @@ export const InsuranceApplicationPage = () => {
                             {id ? 'Update Insurance Application' : 'New Insurance Application'}
                         </Typography>
 
-                        <form noValidate style={{ width: '100%' }}>
+                        <form
+                            noValidate
+                            onSubmit={(e) => e.preventDefault()}
+                            style={{ width: '100%' }}
+                        >
                             <PersonalInfoSection control={control} errors={validationErrors} />
 
                             <SectionTitle variant="h5">Vehicles</SectionTitle>
