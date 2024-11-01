@@ -36,43 +36,35 @@ export const InsuranceApplicationPage = () => {
     const [validationErrors, setValidationErrors] = useState<Record<string, any>>({});
     const [showForm, setShowForm] = useState(true);
 
-    // API Hooks
     const [createApplication, { isLoading: isCreating, error: createError }] =
         useCreateApplicationMutation();
-    const { data: application, isLoading: isLoadingApplication } = useGetApplicationQuery(
-        id ?? 'skip',
-        {
-            skip: !id,
-        }
-    );
     const [updateApplication, { isLoading: isUpdating, error: updateError }] =
         useUpdateApplicationMutation();
     const [getQuote, { data: quoteData, isLoading: isQuoting, error: quoteError }] =
         useGetQuoteMutation();
+    const { data: application, isLoading: isLoadingApplication } = useGetApplicationQuery(
+        id ?? 'skip',
+        { skip: !id }
+    );
 
-    // Update initial showForm state when quote data changes
-    useEffect(() => {
-        setShowForm(!quoteData);
-    }, [quoteData]);
-
-    // Form Setup - keep react-hook-form for field management and final submission
-    const { control, handleSubmit, reset, getValues, register } = useForm<ApplicationFormData>({
-        defaultValues: {
-            firstName: '',
-            lastName: '',
-            dateOfBirth: null,
-            address: {
-                street: '',
-                city: '',
-                state: '',
-                zipCode: '',
-            },
-            vehicles: [],
-            people: [],
+    const defaultValues: ApplicationFormData = {
+        firstName: '',
+        lastName: '',
+        dateOfBirth: null,
+        address: {
+            street: '',
+            city: '',
+            state: '',
+            zipCode: '',
         },
+        vehicles: [],
+        people: [],
+    };
+
+    const { control, reset, getValues } = useForm<ApplicationFormData>({
+        defaultValues,
     });
 
-    // Field Arrays - keep these for managing dynamic fields
     const vehicleArray = useFieldArray({
         control,
         name: 'vehicles',
@@ -83,7 +75,10 @@ export const InsuranceApplicationPage = () => {
         name: 'people',
     });
 
-    // Load existing application data
+    useEffect(() => {
+        setShowForm(!quoteData);
+    }, [quoteData]);
+
     useEffect(() => {
         if (application) {
             const formattedData = {
@@ -105,9 +100,7 @@ export const InsuranceApplicationPage = () => {
         return isValid;
     };
 
-    // Handle button click
     const handleButtonClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
-        // Prevent any default form submission
         e.preventDefault();
         e.stopPropagation();
 
@@ -116,18 +109,16 @@ export const InsuranceApplicationPage = () => {
         let applicationId = id;
 
         try {
-            // Always save the form data
-            if (!id) {
+            if (!applicationId) {
                 const result = await createApplication(formattedData).unwrap();
-                if (result?.application?.id) {
-                    applicationId = result.application.id;
+                applicationId = result?.application?.id;
+                if (applicationId) {
                     navigate(`/applications/${applicationId}`, { replace: true });
                 }
             } else {
-                await updateApplication({ id, data: formattedData }).unwrap();
+                await updateApplication({ id: applicationId, data: formattedData }).unwrap();
             }
 
-            // Only proceed with quote if validation passes
             const isValid = validateForm(formData);
             if (isValid && applicationId) {
                 try {
