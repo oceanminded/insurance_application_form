@@ -1,0 +1,41 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Debug Client",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/client",
+            "sourceMaps": true,
+            "sourceMapPathOverrides": {
+                "webpack:///./src/*": "${webRoot}/src/*"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug API",
+            "skipFiles": ["<node_internals>/**"],
+            "program": "${workspaceFolder}/api/index.ts",
+            "runtimeExecutable": "node",
+            "runtimeVersion": "20.18.0",
+            "runtimeArgs": ["--require", "@swc-node/register", "--require", "dotenv/config"],
+            "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+            "console": "integratedTerminal",
+            "env": {
+                "API_PORT": "8000",
+                "INSURANCE_APPLICATION_APP_URL": "http://localhost:5173"
+            },
+            // Add these settings for better TypeScript debugging
+            "sourceMaps": true,
+            "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"]
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Debug Full Stack",
+            "configurations": ["Debug Client", "Debug API"]
+        }
+    ]
+}

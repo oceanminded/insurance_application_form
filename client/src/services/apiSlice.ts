@@ -3,7 +3,7 @@ import { InsuranceApplication } from '../types/insuranceApplication.models';
 
 export const apiSlice = createApi({
     reducerPath: 'api',
-    baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:3000' }),
+    baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8000' }),
     tagTypes: ['Application'],
     endpoints: (builder) => ({
         createApplication: builder.mutation<
