@@ -13,6 +13,7 @@ To test:
 ```sh
 # optionally: brew install nvm && nvm use
 npm i
+npx prisma generate --schema=./api/prisma/schema.prisma
 npm start
 ```
 Then visit http://localhost:5173/applications
